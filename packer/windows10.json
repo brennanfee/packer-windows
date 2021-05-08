@@ -45,7 +45,7 @@
         ["modifyvm", "{{.Name}}", "--acpi", "on"],
         ["modifyvm", "{{.Name}}", "--ioapic", "on"],
         ["modifyvm", "{{.Name}}", "--graphicscontroller", "vboxsvga"],
-        ["modifyvm", "{{.Name}}", "--accelerate3d", "on"],
+        ["modifyvm", "{{.Name}}", "--accelerate3d", "off"],
         ["modifyvm", "{{.Name}}", "--vram", "256"],
         ["modifyvm", "{{.Name}}", "--monitorcount", "1"],
         ["modifyvm", "{{.Name}}", "--hwvirtex", "on"],

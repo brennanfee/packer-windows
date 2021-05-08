@@ -27,7 +27,7 @@ function virtualbox {
     }
 
     $exe = ($driveLetter + ':\VBoxWindowsAdditions.exe')
-    $parameters = '/S'
+    $parameters = '/S /with_wddm'
 
     Start-Process $exe $parameters -Wait
 }
