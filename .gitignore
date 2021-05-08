@@ -137,3 +137,4 @@ $RECYCLE.BIN/
 # I don't want to accidentally get them added to the repo
 output-*/
 logs/
+packer/iso/

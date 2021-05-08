@@ -1,0 +1,94 @@
+{
+  "variables": {
+    "iso_path": "iso/win10-enterprise-trial.19042.631.201119-0144.20h2.iso",
+    "iso_md5": "3b5da0c84dacdb89abf4502d79cf0ca4",
+    "build-type": "bare"
+  },
+  "builders": [
+    {
+      "name": "windows10-{{user `build-type`}}",
+      "type": "virtualbox-iso",
+      "guest_os_type": "Windows10_64",
+      "iso_url": "{{user `iso_path`}}",
+      "iso_checksum": "{{user `iso_md5`}}",
+
+      "headless": true,
+
+      "communicator": "winrm",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "6h",
+      "winrm_insecure": true,
+
+      "shutdown_command": "shutdown /s /t 0 /f /d p:4:1 /c \"Packer Shutdown\"",
+
+      "hard_drive_interface": "sata",
+      "iso_interface": "sata",
+      "format": "ovf",
+      "disk_size": "102400",
+
+      "guest_additions_mode": "upload",
+      "guest_additions_path": "c:/Windows/Temp/windows.iso",
+
+      "floppy_files": [
+        "floppy/Autounattend.xml",
+        "floppy/update-windows.ps1",
+        "floppy/configure-winrm.ps1"
+      ],
+
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--ostype", "Windows10_64"],
+        ["modifyvm", "{{.Name}}", "--firmware", "bios"],
+        ["modifyvm", "{{.Name}}", "--memory", "8192"],
+        ["modifyvm", "{{.Name}}", "--cpus", "2"],
+        ["modifyvm", "{{.Name}}", "--pae", "on"],
+        ["modifyvm", "{{.Name}}", "--acpi", "on"],
+        ["modifyvm", "{{.Name}}", "--ioapic", "on"],
+        ["modifyvm", "{{.Name}}", "--graphicscontroller", "vboxsvga"],
+        ["modifyvm", "{{.Name}}", "--accelerate3d", "on"],
+        ["modifyvm", "{{.Name}}", "--vram", "256"],
+        ["modifyvm", "{{.Name}}", "--monitorcount", "1"],
+        ["modifyvm", "{{.Name}}", "--hwvirtex", "on"],
+        ["modifyvm", "{{.Name}}", "--nestedpaging", "on"],
+        ["modifyvm", "{{.Name}}", "--nested-hw-virt", "on"],
+        ["modifyvm", "{{.Name}}", "--clipboard-mode", "bidirectional"],
+        ["modifyvm", "{{.Name}}", "--draganddrop", "bidirectional"],
+        ["modifyvm", "{{.Name}}", "--rtcuseutc", "on"],
+        ["modifyvm", "{{.Name}}", "--mouse", "usb"],
+        ["modifyvm", "{{.Name}}", "--keyboard", "usb"],
+        ["modifyvm", "{{.Name}}", "--audiocontroller", "hda"],
+        ["modifyvm", "{{.Name}}", "--audioout", "on"],
+        ["modifyvm", "{{.Name}}", "--audioin", "on"],
+        ["modifyvm", "{{.Name}}", "--audio", "pulse"],
+        ["modifyvm", "{{.Name}}", "--usb", "on"],
+        ["modifyvm", "{{.Name}}", "--usbehci", "on"],
+        ["modifyvm", "{{.Name}}", "--usbxhci", "off"]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "powershell",
+      "scripts": [
+        "scripts/install-guest-tools.ps1",
+        "scripts/enable-rdp.ps1",
+        "scripts/disable-hibernate.ps1",
+        "scripts/disable-autologin.ps1",
+        "scripts/enable-uac.ps1",
+        "scripts/no-pwd-expiration.ps1",
+        "scripts/stamp.ps1"
+      ]
+    },
+    {
+      "type": "windows-restart",
+      "restart_command": "powershell \"& {(Get-WmiObject win32_operatingsystem).LastBootUpTime > C:\\ProgramData\\lastboot.txt; Restart-Computer -force}\"",
+      "restart_check_command": "powershell -command \"& {if ((get-content C:\\ProgramData\\lastboot.txt) -eq (Get-WmiObject win32_operatingsystem).LastBootUpTime) {Write-Output 'Sleeping for 600 seconds to wait for reboot'; start-sleep 600} else {Write-Output 'Reboot complete'}}\""
+    }
+  ],
+  "post-processors": [
+    {
+      "output": "boxes/bfee-windows10-{{user `build-type`}}.box",
+      "type": "vagrant"
+    }
+  ]
+}
