@@ -9,6 +9,7 @@
       "name": "windows10-{{user `build-type`}}",
       "type": "virtualbox-iso",
       "guest_os_type": "Windows10_64",
+      "iso_interface": "sata",
       "iso_url": "{{user `iso_path`}}",
       "iso_checksum": "{{user `iso_md5`}}",
 
@@ -23,7 +24,6 @@
       "shutdown_command": "shutdown /s /t 0 /f /d p:4:1 /c \"Packer Shutdown\"",
 
       "hard_drive_interface": "sata",
-      "iso_interface": "sata",
       "format": "ovf",
       "disk_size": "102400",
 
